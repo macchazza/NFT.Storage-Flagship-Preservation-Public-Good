@@ -29,15 +29,16 @@ interface TableProps {
 export default function TableNative({
   columns,
   data,
-  itemsPerPage = 6,
+  itemsPerPage = 10,
 }: TableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [dealIds, setDealIds] = useState<any>({});
+  const [itemsPerPageState, setItemsPerPageState] = useState(itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = currentPage * itemsPerPage;
+  const startIndex = (currentPage - 1) * itemsPerPageState;
+  const endIndex = currentPage * itemsPerPageState;
   const currentData = data.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.ceil(data.length / itemsPerPageState);
   const pageButtons: any = [];
   const maxVisiblePages = 2;
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function TableNative({
     const fetchDealIdsForCompleteRows = async () => {
       const newDealIds: any = {};
       await Promise.all(
-        data.map(async (row) => {
+        currentData.map(async (row) => {
           if (row.dealStatus === "complete") {
             try {
               const ids = await hookCollections.extractDealIds(row.cid);
@@ -66,7 +67,7 @@ export default function TableNative({
 
     fetchDealIdsForCompleteRows();
     // console.log("current data", currentData);
-  }, []);
+  }, [currentPage, itemsPerPageState]);
 
   const handleRowClick = (collectionID: string) => {
     // router.push(`/collection/${collectionID}`);
@@ -216,15 +217,41 @@ export default function TableNative({
                       </td>
                     ) : column.key === "dealStatus" ? (
                       <td key={column.key}>
-                        {row[column.key] === "complete" ? (
-                          // Display icon based on deal status
-                          <IconBase slug="icon-complete" />
-                        ) : row[column.key] === "in-queue" ||
-                          row[column.key] === "started" ? (
-                          <IconBase slug="icon-queue" />
-                        ) : (
-                          <IconBase slug="icon-error" />
-                        )}
+                        <div
+                          style={{ position: "relative" }}
+                          className="tooltipStatusParent"
+                        >
+                          {row[column.key] === "complete" ? (
+                            // Display icon based on deal status
+                            <>
+                              <IconBase slug="icon-complete" />
+                              <div className="tooltipStatus">
+                                {row[column.key]}
+                              </div>
+                            </>
+                          ) : row[column.key] === "in-queue" ? (
+                            <>
+                              <IconBase slug="icon-queue" />
+                              <div className="tooltipStatus">
+                                {row[column.key]}
+                              </div>
+                            </>
+                          ) : row[column.key] === "started" ? (
+                            <>
+                              <IconBase slug="icon-queue" />
+                              <div className="tooltipStatus">
+                                {row[column.key]}
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <IconBase slug="icon-error" />
+                              <div className="tooltipStatus">
+                                {row[column.key]}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </td>
                     ) : column.key === "filecoinDeal" ? (
                       <td key={column.key}>
@@ -270,10 +297,28 @@ export default function TableNative({
         paddingRight="md"
         marginTop={"xs"}
       >
-        <div>
-          {startIndex + 1} - {endIndex > data.length ? data.length : endIndex}{" "}
-          of {data.length} items
-        </div>
+        <FlexRow hrAlign="start">
+          <div>
+            {startIndex + 1} - {endIndex > data.length ? data.length : endIndex}{" "}
+            of {data.length} items
+          </div>
+          <select
+            value={itemsPerPageState}
+            onChange={(e) => setItemsPerPageState(Number(e.target.value))}
+            style={{
+              paddingTop: "12px",
+              paddingBottom: "12px",
+              paddingLeft: "6px",
+              paddingRight: "6px",
+              marginLeft: "12px",
+            }}
+          >
+            <option value={10}>10 per page</option>
+            <option value={25}>25 per page</option>
+            <option value={50}>50 per page</option>
+            <option value={100}>100 per page</option>
+          </select>
+        </FlexRow>
         <FlexRow width="fit-content">
           <ButtonNative
             showShadow={false}
