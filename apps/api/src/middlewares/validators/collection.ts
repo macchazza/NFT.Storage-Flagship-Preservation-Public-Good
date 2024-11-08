@@ -17,7 +17,7 @@ export const listTokenSchema = joi.object({
   collectionID: joi.string().max(100).required().messages({
     'any.required': 'collectionID not found.',
   }),
-  lastKey: joi.string().max(100).default(null),
+  pageNumber: joi.string().max(5).default(null),
 })
 
 export const dealStatusSchema = joi.object({
