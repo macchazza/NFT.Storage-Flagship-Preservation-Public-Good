@@ -101,8 +101,10 @@ const NavLeft = (props: any) => {
                     {hookUserAPI?.$dataUsed.toFixed(2)}GB used
                   </Text>
                   <Text fontSize={style.font.h8} fontWeight={"600"}>
-                    {hookUserAPI?.$dataLimit.toFixed(2) -
-                      hookUserAPI?.$dataUsed.toFixed(2)}
+                    {(
+                      hookUserAPI?.$dataLimit.toFixed(2) -
+                      hookUserAPI?.$dataUsed.toFixed(2)
+                    ).toFixed(2)}
                     /{hookUserAPI?.$dataLimit.toFixed(2)} left
                   </Text>
                 </FlexRow>
@@ -123,10 +125,7 @@ const NavLeft = (props: any) => {
                   text="Documentation"
                   iconLeft={{ slug: "icon-docs", size: "sm" }}
                   onClick={() => {
-                    window.open(
-                      config.docsURL,
-                      "_blank"
-                    );
+                    window.open(config.docsURL, "_blank");
                   }}
                   variant={activeTab === "Docs" ? "active" : "transparent"}
                   active={activeTab === "Docs"}
