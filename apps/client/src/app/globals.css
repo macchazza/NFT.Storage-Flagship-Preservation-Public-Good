@@ -2,6 +2,16 @@
   --max-width: 1100px;
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+::-webkit-scrollbar-thumb {
+  background: #f5c32c;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -51,8 +61,36 @@ th {
   border-style: solid;
   border-color: black transparent transparent transparent;
 }
+.tooltipStatus {
+  visibility: hidden;
+  width: 100px;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 3;
+  bottom: 125%;
+  left: 15%;
+  margin-left: -60px;
+}
+
+.tooltipStatus::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -3px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
 
 .tooltipParent:hover .tooltip {
+  visibility: visible;
+}
+.tooltipStatusParent:hover .tooltipStatus {
   visibility: visible;
 }
 @font-face {
