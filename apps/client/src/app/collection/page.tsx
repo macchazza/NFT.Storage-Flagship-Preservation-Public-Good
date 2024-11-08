@@ -261,7 +261,7 @@ export default function DashBoard() {
                   >
                     Cancel
                   </ButtonNative>
-                  <ButtonNative
+                  {/* <ButtonNative
                     variant="dark"
                     onClick={() => {
                       hookCollections.newCollection();
@@ -269,7 +269,7 @@ export default function DashBoard() {
                     width="100px"
                   >
                     Create
-                  </ButtonNative>
+                  </ButtonNative> */}
                 </div>
               </FlexRow>
             }
