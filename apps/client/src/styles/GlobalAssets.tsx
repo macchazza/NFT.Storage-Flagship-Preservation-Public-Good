@@ -15,6 +15,12 @@ const GlobalAssets: any = {
   "logo-zksync": "/assets/logo/zksync-logo.svg",
   "logo-immutable": "/assets/logo/immutable-logo.svg",
   "logo-arbitrum": "/assets/logo/arbitrum-logo.svg",
+  "logo-algorand": "/assets/logo/algorand-logo.svg",
+  "logo-avalanche": "/assets/logo/avalanche-logo.svg",
+  "logo-rari": "/assets/logo/rari-logo.svg",
+  "logo-tezos": "/assets/logo/tezos-logo.svg",
+  "logo-flow": "/assets/logo/flow-logo.svg",
+  "logo-zora": "/assets/logo/zora-logo.png",
   "auth-side": "/assets/auth-side.svg",
 
   "icon-github": "/assets/icons/github.svg",
