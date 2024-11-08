@@ -31,6 +31,6 @@ router.get(
 
 router.post('/add_tokens', uploadFile.single('file'), authenticator(), add_tokens)
 router.get('/list_tokens', validate(validator.listTokenSchema, { query: true }), authenticator(), list_tokens)
-router.get('/deal_status', validate(validator.dealStatusSchema, { query: true }), deal_status)
+router.get('/deal_status', validate(validator.dealStatusSchema, { query: true }), authenticator(), deal_status)
 
 export default router
