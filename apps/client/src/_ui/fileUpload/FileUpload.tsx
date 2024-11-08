@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import IconBase from "../icons/IconBase";
 import style from "@/styles/GlobalConstants";
+import useCollections from "@/hooks/useCollections";
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
@@ -15,6 +16,9 @@ export default function FileUpload({
 }: FileUploadProps) {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const hookCollections = useCollections();
+
   const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragging(true);
@@ -102,16 +106,29 @@ export default function FileUpload({
           Click or drag CSV here to upload.
         </span>{" "}
         {/* <br /> */}
-        <span
-          style={{
-            fontFamily: "sans-serif",
-            marginTop: style.margin.xxs,
-            fontSize: style.font.h7,
-            color: "#667085",
-          }}
-        >
-          CSV must include Token ID / CID match.
-        </span>
+        {hookCollections.$collectionNetwork !== "solana" ? (
+          <span
+            style={{
+              fontFamily: "sans-serif",
+              marginTop: style.margin.xxs,
+              fontSize: style.font.h7,
+              color: "#667085",
+            }}
+          >
+            CSV must include tokenID / cid match.
+          </span>
+        ) : (
+          <span
+            style={{
+              fontFamily: "sans-serif",
+              marginTop: style.margin.xxs,
+              fontSize: style.font.h7,
+              color: "#667085",
+            }}
+          >
+            CSV must include tokenAddress / cid match.
+          </span>
+        )}
       </label>
     </div>
   );

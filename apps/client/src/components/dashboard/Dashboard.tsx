@@ -18,6 +18,8 @@ import Checkbox from "@/_ui/checkbox/Checkbox";
 
 const Dashboard = () => {
   const [addToken, setAddToken] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [userAgree, setUserAgree] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [disable, setDisable] = useState<boolean>(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -38,6 +40,14 @@ const Dashboard = () => {
 
   const closeTokenModal = () => {
     setAddToken(false);
+    setUploadedFile(null);
+    hookCollections.$loadCollectionNetwork("");
+    hookCollections.$loadCollectionContractAddress("");
+    handleCheckboxChange(false);
+    setDisable(false);
+  };
+  const closeWarningModal = () => {
+    setShowWarning(false);
   };
 
   const handleDropdownChange = (value: string) => {
@@ -54,20 +64,70 @@ const Dashboard = () => {
       setDisable(false);
       return;
     }
-    if (!hookCollections?.$collectionContractAddress) {
+
+    let tempContractAddress = hookCollections.$collectionContractAddress;
+
+    if (
+      !tempContractAddress &&
+      hookCollections.$collectionNetwork !== "solana"
+    ) {
       toast.error("Please enter contract address");
       setDisable(false);
       return;
     }
+    if (
+      hookCollections.$collectionNetwork === "solana" &&
+      !tempContractAddress
+    ) {
+      tempContractAddress = "undefined";
+      hookCollections.$loadCollectionContractAddress(tempContractAddress);
+    }
     if (file.type === "text/csv" || file.type === "application/json") {
       try {
+        let cids = new Set();
+        let duplicateCids = new Set();
+
+        if (file.type === "text/csv") {
+          const text = await file.text();
+          const rows = text.split("\n");
+          rows.forEach((row, index) => {
+            if (index > 0 && row.trim() !== "") {
+              // Skip header row
+              const columns = row.split(",");
+              const cid = columns[1].trim();
+              if (cids.has(cid)) {
+                duplicateCids.add(cid);
+              } else {
+                cids.add(cid);
+              }
+            }
+          });
+        } else if (file.type === "application/json") {
+          const text = await file.text();
+          const json = JSON.parse(text);
+          json.forEach((item: any) => {
+            const cid = item.cid.trim();
+            if (cids.has(cid)) {
+              duplicateCids.add(cid);
+            } else {
+              cids.add(cid);
+            }
+          });
+        }
+
+        if (duplicateCids.size > 0) {
+          if (!userAgree) {
+            setShowWarning(true);
+            setDisable(false);
+            return;
+          }
+        }
         const userCollections = await hookCollections.fetchCollections();
         const collection = userCollections.find(
-          (item: any) =>
-            item.contractAddress == hookCollections.$collectionContractAddress
+          (item: any) => item.contractAddress == tempContractAddress
         );
         if (userCollections.length === 0 || !collection) {
-          const resPromise = hookCollections.newCollection();
+          const resPromise = hookCollections.newCollection(tempContractAddress);
           toast.promise(resPromise, {
             loading: "Creating new collection...",
             success: "New collection created successfully",
@@ -84,11 +144,10 @@ const Dashboard = () => {
               collectionNew.length == 1
                 ? collectionNew[0].collectionID
                 : collectionNew.find(
-                    (item: any) =>
-                      item.contractAddress ==
-                      hookCollections.$collectionContractAddress
+                    (item: any) => item.contractAddress == tempContractAddress
                   ).collectionID
             );
+            formData.append("network", hookCollections.$collectionNetwork);
             // await toast.promise(
             //   tokenUpload(formData),
             //   {
@@ -124,6 +183,7 @@ const Dashboard = () => {
           const formData = new FormData();
           formData.append("file", file);
           formData.append("collectionID", collection.collectionID);
+          formData.append("network", hookCollections.$collectionNetwork);
           toast.loading("Uploading tokens...");
           const response = await tokenUpload(formData);
 
@@ -163,6 +223,7 @@ const Dashboard = () => {
         handleCheckboxChange(false);
         setDisable(false);
       } catch (error) {
+        console.log("error", error);
         toast.error("Error handling file upload");
       }
     } else {
@@ -172,6 +233,27 @@ const Dashboard = () => {
 
   const onFileUpload = async (file: File) => {
     setUploadedFile(file);
+  };
+
+  const getTooltipContent = () => {
+    if (hookCollections.$collectionNetwork === "solana") {
+      return (
+        <>
+          Only CSVs are accepted.
+          <br /> Header row must be: tokenAddress, cid
+          <br />
+          Each row must include a tokenAddress and cid match in separate columns
+        </>
+      );
+    }
+    return (
+      <>
+        Only CSVs are accepted.
+        <br /> Header row must be: tokenID, cid
+        <br />
+        Each row must include a tokenID and cid match in separate columns
+      </>
+    );
   };
 
   const columnsdashboard: any = [
@@ -191,9 +273,19 @@ const Dashboard = () => {
       icon: <IconBase slug="logo-solana" />,
     },
     {
+      value: "algorand",
+      label: "Algorand",
+      icon: <IconBase slug="logo-algorand" />,
+    },
+    {
       value: "arbitrum",
       label: "Arbitrum",
       icon: <IconBase slug="logo-arbitrum" />,
+    },
+    {
+      value: "avalanch",
+      label: "Avalanch",
+      icon: <IconBase slug="logo-avalanche" />,
     },
     { value: "base", label: "Base", icon: <IconBase slug="logo-base" /> },
     {
@@ -205,6 +297,11 @@ const Dashboard = () => {
       value: "filecoin",
       label: "Filecoin Mainnet",
       icon: <IconBase slug="logo-filecoin" />,
+    },
+    {
+      value: "flow",
+      label: "Flow",
+      icon: <IconBase slug="logo-flow" />,
     },
     {
       value: "immutable",
@@ -222,14 +319,29 @@ const Dashboard = () => {
       icon: <IconBase slug="logo-polygon" />,
     },
     {
+      value: "rari",
+      label: "RARI Chain",
+      icon: <IconBase slug="logo-rari" />,
+    },
+    {
       value: "stargaze",
       label: "Stargaze",
       icon: <IconBase slug="logo-stargaze" />,
     },
     {
+      value: "tezos",
+      label: "Tezos",
+      icon: <IconBase slug="logo-tezos" />,
+    },
+    {
       value: "zksync",
       label: "zkSync",
       icon: <IconBase slug="logo-zksync" />,
+    },
+    {
+      value: "zora",
+      label: "Zora",
+      icon: <IconBase slug="logo-zora" />,
     },
   ];
   return (
@@ -237,8 +349,8 @@ const Dashboard = () => {
       <div
         style={{
           width: "100%",
-          // padding: "1.5rem",
-          height: "100vh",
+          // padding: "2.5rem 0 0 0",
+          // height: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -396,7 +508,11 @@ const Dashboard = () => {
               </Text>
 
               <InputLabel
-                placeholder="Contract Address"
+                placeholder={
+                  hookCollections.$collectionNetwork == "solana"
+                    ? "Verified Collection Address (Optional)"
+                    : "Contract Address"
+                }
                 inputValue={hookCollections?.$collectionContractAddress}
                 width="100%"
                 marginBottom={style.margin.sm}
@@ -476,12 +592,21 @@ const Dashboard = () => {
               <FlexRow width="fit-content">
                 <IconBase slug="icon-info" />
                 <Text marginLeft={style.margin.xxs}>What should I upload?</Text>
-                <div className="tooltip">
-                  Only CSVs are accepted.
-                  <br /> Header row must be: TokenID, CID <br />
-                  Each row must include a TokenID and CID match in seperate
-                  columns
-                </div>
+                {hookCollections.$collectionNetwork !== "solana" ? (
+                  <div className="tooltip">
+                    Only CSVs are accepted.
+                    <br /> Header row must be: tokenID, cid <br />
+                    Each row must include a tokenID and cid match in seperate
+                    columns
+                  </div>
+                ) : (
+                  <div className="tooltip">
+                    Only CSVs are accepted.
+                    <br /> Header row must be: tokenAddress, cid <br />
+                    Each row must include a tokenAddress and cid match in
+                    seperate columns
+                  </div>
+                )}
               </FlexRow>
             </div>
             <div>
@@ -500,10 +625,61 @@ const Dashboard = () => {
                 onClick={() => {
                   setDisable(true);
                   handleFileUpload(uploadedFile);
+                  setUserAgree(false);
                 }}
                 width="100px"
               >
                 Upload
+              </ButtonNative>
+            </div>
+          </FlexRow>
+        }
+      />
+      <Modal
+        isOpen={showWarning}
+        onClose={closeWarningModal}
+        size="md"
+        body={
+          <>
+            <ul>
+              <li>
+                This file contains duplicate CIDs and data cap usage is
+                calculated separately for each instance.
+              </li>
+              <li>
+                Duplicate CID means double data cap consumption for the same
+                usage.
+              </li>
+              <li>
+                You can specify the token numbers as a range(like: Qm....,
+                1-999) in such cases.
+              </li>
+            </ul>
+          </>
+        }
+        footer={
+          <FlexRow hrAlign="center">
+            <div>
+              <ButtonNative
+                marginRight="sm"
+                onClick={() => {
+                  closeWarningModal();
+                  closeTokenModal();
+                }}
+                width="100px"
+              >
+                Cancel
+              </ButtonNative>
+
+              <ButtonNative
+                variant="dark"
+                onClick={() => {
+                  setShowWarning(false);
+                  setUserAgree(true);
+                }}
+                width="100px"
+              >
+                OK
               </ButtonNative>
             </div>
           </FlexRow>

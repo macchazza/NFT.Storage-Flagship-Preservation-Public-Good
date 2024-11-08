@@ -21,6 +21,7 @@ import { jwtDecode } from "jwt-decode";
 export default function SingleCollection() {
   const [tab, setTab] = useState<any>("Dashboard");
   const [conditionsModal, setConditionsModal] = useState<boolean>(true);
+  const [showPopup, setShowPopup] = useState(false);
   const closeConditionModal = () => {
     setConditionsModal(false);
   };
@@ -33,6 +34,12 @@ export default function SingleCollection() {
   const hookAuth = useAuth();
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
+    const popupShown = localStorage.getItem("popupShown");
+    if (!popupShown) {
+      // Set showPopup to true and mark popup as shown in localStorage
+      setShowPopup(true);
+      // localStorage.setItem("popupShown", "true");
+    }
     if (accessToken) {
       const tokenPayload: any = jwtDecode(accessToken);
       if (tokenPayload) {
@@ -45,6 +52,88 @@ export default function SingleCollection() {
   }, []);
   return (
     <>
+      {showPopup && (
+        <div
+          style={{
+            position: "absolute",
+            background: "rgb(0,0,0,0.5)",
+            width: "100vw",
+            height: "100vh",
+            zIndex: "100",
+          }}
+        >
+          <FlexColumn>
+            <Modal
+              isClosable={false}
+              isOpen={conditionsModal}
+              onClose={closeConditionModal}
+              size="md"
+              body={
+                <>
+                  <Text
+                    fontSize={style.font.h3}
+                    fontFamily="chicagoflf"
+                    marginBottom={style.margin.xxs}
+                  >
+                    Getting started with NFT.Storage!
+                  </Text>
+                  <div
+                    style={{
+                      height: "150px",
+                      padding: style.padding.sm,
+                    }}
+                  >
+                    <Text marginBottom={style.margin.xxs}>
+                      To add your data to NFT.Storage follow these steps:
+                    </Text>
+                    <ol>
+                      <li>
+                        Prepare for your mint. Use an IPFS on-ramp to content
+                        address NFT data. We recommend{" "}
+                        <a
+                          href="https://www.pinata.cloud/nft-storage-pinata"
+                          style={{ textDecoration: "underline" }}
+                        >
+                          Pinata
+                        </a>{" "}
+                        or{" "}
+                        <a
+                          href="https://files.lighthouse.storage/?referby=NFTStorage"
+                          style={{ textDecoration: "underline" }}
+                        >
+                          Lighthouse.
+                        </a>
+                      </li>
+                      <li>Mint your NFTs on preferred network</li>
+                      <li>
+                        Buy storage from NFT.Storage for your off-chain data
+                      </li>
+                      <li>
+                        Add items—the metadata and imagery CIDs, network minted
+                        on, contract address and token IDs—to be preserved.
+                      </li>
+                    </ol>
+                  </div>
+                </>
+              }
+              footer={
+                <FlexRow hrAlign="flex-end">
+                  <ButtonNative
+                    variant="dark"
+                    onClick={async () => {
+                      localStorage.setItem("popupShown", "true");
+                      window.location.reload();
+                    }}
+                    width="100px"
+                  >
+                    I understand
+                  </ButtonNative>
+                </FlexRow>
+              }
+            />
+          </FlexColumn>
+        </div>
+      )}
       {/* {console.log(hookAuth.showConditions)} */}
       {hookAuth.showConditions && (
         <div
