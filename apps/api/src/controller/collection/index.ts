@@ -63,18 +63,17 @@ export const list_tokens = async (req: any, res: Response, next: NextFunction) =
       throw new CustomError(403, 'Forbidden.')
     }
 
+    const pageNumber = parseInt(req.query.pageNumber as string, 10) || 1
     let exclusiveStartKey = undefined
-    if (req.query.lastKey) {
-      const tokenDetails = await getTokenById(req.query.lastKey)
-      if (tokenDetails) {
-        exclusiveStartKey = {
-          id: tokenDetails.id,
-          collectionID: tokenDetails.collectionID,
-          createdAt: tokenDetails.createdAt,
-        }
-      }
+    let tokens: any = []
+
+    for (let i = 1; i <= pageNumber; i++) {
+      const result = await getTokens(req.query.collectionID as string, exclusiveStartKey)
+      tokens = result.tokens
+      exclusiveStartKey = result.lastEvaluatedKey
+
+      if (!exclusiveStartKey) break
     }
-    const tokens = await getTokens(req.query.collectionID, exclusiveStartKey)
     const data = responseParser(tokens)
     res.status(200).json(data)
   } catch (error) {

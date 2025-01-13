@@ -11,8 +11,12 @@ type TokenList = {
   dealStatus: string
   createdAt: number
 }
+type GetTokensResult = {
+  tokens: TokenList[]
+  lastEvaluatedKey: any
+}
 
-export default async (collectionID: string, exclusiveStartKey: any): Promise<TokenList[]> => {
+export default async (collectionID: string, exclusiveStartKey: any): Promise<GetTokensResult> => {
   try {
     const params = {
       TableName: tokenTable,
@@ -28,7 +32,10 @@ export default async (collectionID: string, exclusiveStartKey: any): Promise<Tok
     }
 
     const record = await dbbClient.query(params)
-    return (record.Items as TokenList[]) ?? []
+    return {
+      tokens: (record.Items as TokenList[]) ?? [],
+      lastEvaluatedKey: record.LastEvaluatedKey,
+    }
   } catch (error: any) {
     logger.error(`Error in listing collection: ${error}`)
     throw new CustomError(500, `Internal Server Error.`)

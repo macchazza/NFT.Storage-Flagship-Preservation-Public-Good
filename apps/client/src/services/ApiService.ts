@@ -134,14 +134,17 @@ export const listCollections = async () => {
     return error;
   }
 };
-export const viewCollection = async (collectionID: any) => {
+export const viewCollection = async (
+  collectionID: any,
+  pageNumber?: number
+) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       throw new Error("Access token not found in local storage");
     }
     const response = await fetch(
-      `${config.server}/api/v1/collection/list_tokens?collectionID=${collectionID}`,
+      `${config.server}/api/v1/collection/list_tokens?collectionID=${collectionID}&pageNumber=${pageNumber?.toString()}`,
       {
         method: "GET",
         headers: {
@@ -279,10 +282,17 @@ export const fetchTransactions = async () => {
 };
 export const fetchDealID = async (cid: string) => {
   try {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      throw new Error("Access token not found in local storage");
+    }
     const response = await fetch(
-      `https://api.lighthouse.storage/api/lighthouse/deal_status?cid=${cid}`,
+      `${config.server}/api/v1/collection/deal_status?cid=${cid}`,
       {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
     );
     if (response.status == 200) {

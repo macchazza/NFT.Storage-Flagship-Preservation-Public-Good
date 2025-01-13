@@ -252,3 +252,14 @@ export const dealStatus = async (cid: string) => {
   }
 }
 
+// export const getTokenStatus = async (collectionId: string, tokenId: string) => {
+//   const token = await getToken(collectionId, tokenId)
+//   if (!token) {
+//     throw new CustomError(404, 'Data Not Found.')
+//   }
+//   const url = `${dealStatusUrl}Qmah99npVfj9WRMfc172Ghk1qKdxF7BTYFLTD9Ph4wseTJ`
+
+//   const response = await axios.get(url)
+//   const { aggregateIn, lastUpdate, miner, ...rest } = response.data['0']
+//   return rest
+// }

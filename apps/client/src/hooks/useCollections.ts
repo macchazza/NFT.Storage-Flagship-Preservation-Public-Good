@@ -65,10 +65,12 @@ const useCollections = () => {
       return res;
     });
   };
-  const newCollection: () => any = () => {
+  const newCollection: (tempContractAddress: any) => any = (
+    tempContractAddress: any
+  ) => {
     const collectionData = {
       // name: $collectionName,
-      contractAddress: $collectionContractAddress,
+      contractAddress: tempContractAddress,
       // chainID: $collectoinChainID,
       network: $collectionNetwork,
     };
@@ -77,8 +79,8 @@ const useCollections = () => {
       return res;
     });
   };
-  const fetchCollection = (collectionID: any) => {
-    return viewCollection(collectionID)
+  const fetchCollection = (collectionID: any, pageNumber?: number) => {
+    return viewCollection(collectionID, pageNumber)
       .then((res: any) => {
         // console.log(res, "from fetch collection");
         $loadCollectionTokens(res);
@@ -90,34 +92,49 @@ const useCollections = () => {
   };
   const fetchTokens = async () => {
     setIsLoading(true);
-    const tokensPromise = fetchCollections().then((res: any) => {
-      // console.log(res);
-      const fetchTokenPromises = res.map((item: any) => {
-        // console.log(item);
-        return fetchCollection(item.collectionID).then((res) => {
-          // console.log(res.value, "tokens of a collectoin");
-          return res.value;
-        });
-      });
+    try {
+      const collections = await fetchCollections();
+      let allTokens: any[] = [];
 
-      return Promise.all(fetchTokenPromises);
-    });
+      for (const collection of collections) {
+        let pageNumber = 1;
+        let collectionTokens: any[] = [];
 
-    tokensPromise
-      .then((tokensArray: any) => {
-        const tokens = tokensArray.flatMap((tokens: any) => tokens);
-        // console.log(tokens, "all tokens from all collections");
-        $loadUserTokens(tokens);
-        setFilteredData(tokens);
-        setIsLoading(false);
-      })
-      .catch((error: any) => {
-        console.error("Error fetching tokens:", error);
-        setIsLoading(false);
-      });
+        for (let i = 0; ; i++) {
+          const response = await fetchCollection(
+            collection.collectionID,
+            pageNumber
+          );
+          if (i == 0) {
+            collectionTokens = [...collectionTokens, ...response.value];
+          }
+          if (response.value.length == 0) break;
+          if (
+            i != 0 &&
+            response.value[response.value.length - 1].cid ==
+              collectionTokens[collectionTokens.length - 1].cid
+          ) {
+            break;
+          }
+          if (i != 0) {
+            collectionTokens = [...collectionTokens, ...response.value];
+          }
+          pageNumber++;
+        }
+        allTokens = [...allTokens, ...collectionTokens];
+      }
+
+      $loadUserTokens(allTokens);
+      setFilteredData(allTokens);
+    } catch (error) {
+      console.error("Error fetching tokens:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   const extractDealIds = async (cid: string) => {
-    const dataArray = await fetchDealID(cid);
+    const dataObject = await fetchDealID(cid);
+    const dataArray = dataObject.value;
     const dealIdsArray: any = [];
     dataArray.forEach((obj: any) => {
       if (obj.hasOwnProperty("dealId")) {

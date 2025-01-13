@@ -9,7 +9,7 @@ const authTable = 'auth'
 const collectionTable = 'collection'
 const tokenTable = 'token'
 const transactionTable = 'transactions'
-const pageSizeToken = 500
+const pageSizeToken = 2000
 
 const pricePerGBInDollar = 2.99
 const CSVFileSizeLimit = 2 * 1024 * 1024
