@@ -23,8 +23,9 @@ export const NewAPIKeySchema = joi.object({
   keyName: joi.string().max(50).required().messages({
     'any.required': 'keyName not found.',
   }),
-  role: joi.string().max(50).required().messages({
-    'any.required': 'role not found.',
+  role: joi.string().default('user'),
+  apiKeyType: joi.string().valid('private', 'public').default('private').messages({
+    'any.only': 'apiKeyType must be one of: private, public',
   }),
 })
 
@@ -39,4 +40,19 @@ export const gitOAuth = joi.object({
     'any.required': 'code not found.',
   }),
   emailOpt: joi.boolean(),
+})
+
+export const PreservationCheckSchema = joi.object({
+  cid: joi.string().required().messages({
+    'any.required': 'CID is required',
+  }),
+  chain_id: joi.string().messages({
+    'string.base': 'chain_id must be a string',
+  }),
+  collection_address: joi.string().messages({
+    'string.base': 'collection_address must be a string',
+  }),
+  token_id: joi.string().messages({
+    'string.base': 'token_id must be a string',
+  }),
 })

@@ -20,6 +20,7 @@ export type APIKey = {
   keyName: string
   userID: string
   userRole: string
+  apiKeyType: string
   createdAt: number
   updatedAt: number
   lastUsed: number

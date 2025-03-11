@@ -10,6 +10,7 @@ import UserRouter from './routes/user.js'
 import CollectionRouter from './routes/collection.js'
 import PaymentRouter from './routes/payments.js'
 import WebhookRouter from './routes/webhook.js'
+import PreservationRouter from './routes/preservation.js'
 import errorHandler from './middlewares/error/index.js'
 import logger from './utils/logger.js'
 import config from './config/index.js'
@@ -43,15 +44,16 @@ app.use('/api/v1/auth', AuthRouter)
 app.use('/api/v1/user', UserRouter)
 app.use('/api/v1/collection', CollectionRouter)
 app.use('/api/v1/payment', PaymentRouter)
+app.use('/api/v1/preservation', PreservationRouter)
 
 app.use(errorHandler)
 
 if (config.environment === 'production') {
-  const tokenStatusCRON = cron.schedule('0 */4 * * *', () => {
+  cron.schedule('0 */4 * * *', () => {
     console.log('Running token file status')
     refreshFileStatus()
   })
-  const tokenDealCRON = cron.schedule('0 */6 * * *', () => {
+  cron.schedule('0 */6 * * *', () => {
     console.log('Running token deal status')
     refreshDealStatus()
   })

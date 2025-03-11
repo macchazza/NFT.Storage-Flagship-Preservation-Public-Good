@@ -17,7 +17,7 @@ const selectTransports = () => {
 }
 
 const logger = createLogger({
-  level: 'info',
+  level: 'debug',
   defaultMeta: {
     service: service,
   },
