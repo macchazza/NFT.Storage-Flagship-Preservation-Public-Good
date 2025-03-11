@@ -36,13 +36,53 @@ Integrate, store, safeguard. Affordable, lasting protection for your NFTs in 3 s
 3. **Send Your NFT Data to Us for Long-term Preservation**
    - Send us your NFT data—CIDs, blockchain, contract address, and token IDs. We preserve the off-chain data, and our NFT Token Checker confirms collection preservation for integrated apps to display the badge.
 
+## Preservation Status Checker API
+
+Our Preservation Status Checker API allows you to verify the preservation status of any NFT preserved with NFT.Storage. This public API endpoint is rate-limited to ensure fair usage while providing reliable API-based access to preservation information.
+
+### Using the API
+
+```http
+GET /api/v1/preservation/check
+```
+
+**Query Parameters:**
+- `cid` (required): The IPFS CID of the NFT data
+- `chain_id` (optional): The blockchain network identifier
+- `collection_address` (optional): The NFT collection contract address
+- `token_id` (optional): The specific token ID within the collection
+
+**Authentication:**
+- Requires a public API key in the Authorization header
+- Format: `Bearer YOUR_PUBLIC_API_KEY`
+
+**Rate Limits:**
+- 1,000 requests per day for public API keys
+- Reset window: 24 hours
+
+**Example Response:**
+```json
+{
+  "ok": true,
+  "value": {
+    "chain_id": "ethereum",
+    "available": true,
+    "token_id": "42",
+    "collection_address": "0x...",
+    "url": "ipfs://bafybeige...",
+    "timestamp": "2024-01-08T12:00:00.000Z"
+  }
+}
+```
+
+For detailed API documentation, visit our [HTTP API documentation](https://app.nft.storage/v1/docs/client/http-api).
 
 ## Recommended Hot Storage Providers
 
 We are excited to share our recommended hot storage partners, Pinata and Lighthouse. As an NFT.Storage user, choosing these partners ensures reliable hot storage solutions while supporting our platform and mission.
 
 ### How Using Pinata and Lighthouse Benefits You
-For new customers who sign up with Pinata and Lighthouse, these providers offer exceptional services for managing your NFT data on IPFS. By using our referral links, you also help support NFT.Storage’s mission.
+For new customers who sign up with Pinata and Lighthouse, these providers offer exceptional services for managing your NFT data on IPFS. By using our referral links, you also help support NFT.Storage's mission.
 
 ### Pinata: Flexible and Powerful
 Pinata offers flexible plans and powerful, easy-to-use tools for managing your data on IPFS. Use code NFTSTORAGE50 at checkout to enjoy 50% off your first month. [Sign up today](https://pinata.cloud).
@@ -50,14 +90,12 @@ Pinata offers flexible plans and powerful, easy-to-use tools for managing your d
 ### Lighthouse: Affordable and Flexible
 Lighthouse is an IPFS provider with unique payment options for NFT longevity. They offer affordability and flexibility for all your IPFS needs, including a pay-once and store-forever option. [Sign up today](https://lighthouse.storage).
 
-
 # HTTP API
 
 Check out the [HTTP API documentation](https://app.nft.storage/v1/docs/intro).
 
 # WEB APP
 Use the web app to buy storage and upload data. [Sign up to the web app](https://app.nft.storage/signup).
-
 
 ## NFT.Storage Relies on Your Support
 
