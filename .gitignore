@@ -1,2 +1,6 @@
 .env
+.env.test
 node_modules
+.DS_Store
+dynamo_exports
+import_dynamodb.sh

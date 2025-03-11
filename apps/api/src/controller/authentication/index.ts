@@ -7,7 +7,12 @@ import responseParser from '../../utils/responseParser.js'
 
 export const create_api_key = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const apiKey = await createApiKey(req.body.user.userID, req.query.keyName as string, req.query.role as string)
+    const apiKey = await createApiKey(
+      req.body.user.userID,
+      req.query.keyName as string,
+      (req.query.role as string) || 'user',
+      (req.query.apiKeyType as string) || 'private',
+    )
     const data = responseParser({ apiKey })
     res.status(200).json(data)
   } catch (error) {

@@ -5,6 +5,7 @@ dotenv.config()
 const config = {
   environment: process.env.NODE_ENV ?? 'development',
   port: process.env.PORT ?? 8000,
+  dynamodb_endpoint: process.env.DYNAMODB_ENDPOINT,
   aws_access_key_id: process.env.AWS_ACCESS_KEY_ID ?? '',
   aws_secret_access_key: process.env.AWS_SECRET_ACCESS_KEY ?? '',
   aws_region: process.env.AWS_REGION ?? '',

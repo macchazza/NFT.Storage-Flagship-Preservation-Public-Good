@@ -1,6 +1,9 @@
 class CustomError extends Error {
   ok: boolean
-  error?: any
+  error: {
+    code: number
+    message: string
+  }
 
   constructor(statusCode: number, error: string) {
     super(`${error}`)

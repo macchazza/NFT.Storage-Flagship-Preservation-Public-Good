@@ -8,7 +8,12 @@ import CustomError from '../../../middlewares/error/customError.js'
 import increaseAPIKeyCount from '../../../db/user/increaseAPIKeyCount.js'
 import decreaseAPIKeyCount from '../../../db/user/decreaseAPIKeyCount.js'
 
-export const createApiKey = async (userID: string, keyName: string, role: string): Promise<string> => {
+export const createApiKey = async (
+  userID: string,
+  keyName: string,
+  role: string,
+  apiKeyType: string,
+): Promise<string> => {
   const prefix = v4().split('-')[0]
   const apiKey = prefix + '.' + v4().split('-').join('')
   const record = {
@@ -17,6 +22,7 @@ export const createApiKey = async (userID: string, keyName: string, role: string
     keyName: keyName,
     userID: userID,
     userRole: role,
+    apiKeyType: apiKeyType,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     lastUsed: Date.now(),
